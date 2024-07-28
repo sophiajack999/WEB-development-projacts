@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Background Image Example</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="content">
+      <div class="navbar">
+        <img src="buli.png" class="buli" />
+        <nav>
+          <ul>
+            <li><a href="home.html">home</a></li>
+            <li><a href="">love</a></li>
+            <li><a href="">night</a></li>
+            <li><a href="">dark</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <h1>sahara</h1>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure est
+            minima a suscipit harum id dignissimos? Temporibus delectus
+            voluptatibus placeat corrupti, dolores nesciunt omnis magni
+            assumenda eius illum asperiores in!
+          </p>
+          <button type="button">explore</button>
+        </div>
+
+        <div class="card card1">
+          <h5>west desert</h5>
+          <p>orem ipsum dolor sit amet consectetur ad</p>
+        </div>
+
+        <div class="card card2">
+          <h5>sngfj desert</h5>
+          <p>orem ipsum dolor sit amet consectetur ad</p>
+        </div>
+
+       <!--- <div class="card card3">
+          <h5>bklj desert</h5>
+          <p>orem ipsum dolor sit amet consectetur ad</p>
+        </div> -->
+
+
+
+        <div class="card card3">
+            <h5>bklj desert</h5>
+            <p>orem ipsum dolor sit amet consectetur ad</p>
+            <a href="your-page.html" class="btn">Read more</a>
+          </div>
+
+        <div class="card card4">
+          <h5>dgh desert</h5>
+          <p>orem ipsum dolor sit amet consectetur ad</p>
+        </div>
+      </div>
+
+      <!-- To-Do List Section -->
+      <div class="todo-list">
+        <h2>To-Do List</h2>
+        <input type="text" id="new-task" placeholder="Add a new task" />
+        <button id="add-task-button">Add Task</button>
+        <ul id="task-list"></ul>
+      </div>
+    </div>
+
+    <script>
+       
+
+
+      document.addEventListener("DOMContentLoaded", async function () {
+        const taskList = document.getElementById("task-list");
+        const newTaskInput = document.getElementById("new-task");
+        const addTaskButton = document.getElementById("add-task-button");
+
+        // Function to fetch tasks from the server
+        async function fetchTasks() {
+          const response = await fetch("/api/tasks");
+          const tasks = await response.json();
+         taskList.innerHTML = "";
+         tasks.forEach((task) => {
+           const li = document.createElement("li");
+           li.textContent = task.name;
+           taskList.appendChild(li);
+        
+         });
+        }
+
+        // Fetch tasks on page load
+        fetchTasks();
+
+        // Add task event listener
+        addTaskButton.addEventListener("click", async function () {
+          const taskText = newTaskInput.value;
+          if (taskText) {
+            const response = await fetch("/api/tasks", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ name: taskText }),
+            });
+            if (response.ok) {
+              fetchTasks(); // Refresh the task list
+              newTaskInput.value = "";
+            }
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <style>
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            border: 1px solid #000;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="board" id="board"></div>
+    <button onclick="newGame()">New Game</button>
+    <button onclick="joinGame()">Join Game</button>
+    <script>
+        const websocket = new WebSocket("ws://localhost:8765");
+
+        let gameId = null;
+
+        websocket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+
+            if (data.type === "welcome") {
+                console.log(data.message);
+            } else if (data.type === "game_created") {
+                gameId = data.game_id;
+                alert(`Game created with ID: ${gameId}`);
+            } else if (data.type === "game_joined") {
+                gameId = data.game_id;
+                alert(`Joined game with ID: ${gameId}`);
+            } else if (data.type === "opponent_joined") {
+                alert("An opponent has joined your game!");
+            } else if (data.type === "move_made") {
+                updateBoard(data.board);
+                if (data.winner) {
+                    alert(`Player ${data.winner} wins!`);
+                }
+            }
+        };
+
+        function newGame() {
+            websocket.send(JSON.stringify({ type: "new_game" }));
+        }
+
+        function joinGame() {
+            const gameId = prompt("Enter game ID:");
+            websocket.send(JSON.stringify({ type: "join_game", game_id: gameId }));
+        }
+
+        function makeMove(row, col) {
+            if (gameId) {
+                websocket.send(JSON.stringify({ type: "make_move", game_id: gameId, move: [row, col] }));
+            }
+        }
+
+        function createBoard() {
+            const board = document.getElementById("board");
+            board.innerHTML = "";
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    const cell = document.createElement("div");
+                    cell.className = "cell";
+                    cell.addEventListener("click", () => makeMove(i, j));
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        function updateBoard(board) {
+            const cells = document.querySelectorAll(".cell");
+            let index = 0;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    cells[index].textContent = board[i][j];
+                    index++;
+                }
+            }
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>

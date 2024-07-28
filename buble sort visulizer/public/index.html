@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble Sort Visualizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+        #array {
+            margin: 20px;
+        }
+        #sortBtn {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        .bar {
+            display: inline-block;
+            width: 20px;
+            margin-right: 2px;
+            background-color: teal;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bubble Sort Visualizer</h1>
+    <input type="text" id="array" placeholder="Enter numbers separated by commas">
+    <button id="sortBtn">Sort</button>
+    <div id="bars"></div>
+
+    <script>
+        document.getElementById('sortBtn').addEventListener('click', () => {
+            const input = document.getElementById('array').value;
+            const array = input.split(',').map(Number);
+            bubbleSort(array);
+        });
+
+        async function bubbleSort(array) {
+            const barsContainer = document.getElementById('bars');
+            barsContainer.innerHTML = '';
+            array.forEach(num => {
+                const bar = document.createElement('div');
+                bar.style.height = `${num * 10}px`;
+                bar.className = 'bar';
+                barsContainer.appendChild(bar);
+            });
+
+            for (let i = 0; i < array.length; i++) {
+                for (let j = 0; j < array.length - i - 1; j++) {
+                    if (array[j] > array[j + 1]) {
+                        [array[j], array[j + 1]] = [array[j + 1], array[j]];
+                        await updateBars(array);
+                    }
+                }
+            }
+
+            // Send the sorted array to the server
+            saveSortResult(array);
+        }
+
+        function updateBars(array) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    const barsContainer = document.getElementById('bars');
+                    barsContainer.innerHTML = '';
+                    array.forEach(num => {
+                        const bar = document.createElement('div');
+                        bar.style.height = `${num * 10}px`;
+                        bar.className = 'bar';
+                        barsContainer.appendChild(bar);
+                    });
+                    resolve();
+                }, 300);
+            });
+        }
+
+        function saveSortResult(sortedArray) {
+            fetch('/save-sort-result', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ sortedArray })
+            }).then(response => response.json())
+              .then(data => console.log('Result saved:', data))
+              .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
